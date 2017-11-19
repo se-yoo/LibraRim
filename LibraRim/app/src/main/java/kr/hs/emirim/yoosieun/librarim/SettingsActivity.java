@@ -28,4 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
+    public void Back(View v){
+        getFragmentManager().beginTransaction().replace(R.id.set_content,new Settingsfragment()).commit();
+    }
 }

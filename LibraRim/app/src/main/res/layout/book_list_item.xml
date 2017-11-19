@@ -11,13 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:layout_gravity="center_vertical"
-        android:onClick="getBookInfoPage"
         >
 
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.5">
+            android:layout_weight="1.8">
 
             <ImageView
                 android:id="@+id/bookprofile"
@@ -31,8 +30,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
-            android:background="#b9cd9a">
+            android:layout_weight="3.7">
             <TextView
                 android:id="@+id/list_booktitle"
                 android:layout_width="match_parent"
@@ -43,7 +41,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="3">
+            android:layout_weight="2.4">
             <TextView
                 android:id="@+id/list_bookwriter"
                 android:layout_width="match_parent"
@@ -54,8 +52,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.5"
-            android:background="#b9cd9a">
+            android:layout_weight="1.6">
 
             <TextView
                 android:id="@+id/list_bookstatus"

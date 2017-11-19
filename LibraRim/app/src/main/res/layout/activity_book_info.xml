@@ -109,7 +109,7 @@
                 android:layout_alignTop="@+id/bookImg"
                 android:layout_marginLeft="50dp"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="50dp"
                 android:layout_toEndOf="@+id/bookImg"
                 android:layout_toRightOf="@+id/bookImg"
                 android:text="책 제목"
@@ -124,7 +124,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_toRightOf="@+id/booktitle"
                 android:layout_toEndOf="@+id/booktitle"
-                android:text="책제목입니다"
+                android:text=""
                 android:textSize="30dp" />
 
             <TextView
@@ -134,7 +134,7 @@
                 android:layout_alignLeft="@+id/booktitle"
                 android:layout_alignStart="@+id/booktitle"
                 android:layout_below="@+id/booktitle"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="100dp"
                 android:text="저자"
                 android:textSize="30dp" />
 
@@ -147,7 +147,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_toRightOf="@+id/writer"
                 android:layout_toEndOf="@+id/writer"
-                android:text="글쓴이입니다"
+                android:text=""
                 android:textSize="30dp" />
 
             <TextView
@@ -157,7 +157,7 @@
                 android:layout_alignLeft="@+id/writer"
                 android:layout_alignStart="@+id/writer"
                 android:layout_below="@+id/writer"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="100dp"
                 android:text="출판사"
                 android:textSize="30dp" />
 
@@ -170,7 +170,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_toRightOf="@+id/publisher"
                 android:layout_toEndOf="@+id/publisher"
-                android:text="출판사입니다"
+                android:text=""
                 android:textSize="30dp" />
 
         </RelativeLayout>
@@ -198,7 +198,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_toRightOf="@+id/group"
                 android:layout_toEndOf="@+id/group"
-                android:text="책분류입니다"
+                android:text=""
                 android:textSize="30dp" />
 
             <TextView
@@ -221,7 +221,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_toRightOf="@+id/location"
                 android:layout_toEndOf="@+id/location"
-                android:text="책위치입니다"
+                android:text=""
                 android:textSize="30dp" />
 
             <TextView
@@ -244,7 +244,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_toRightOf="@+id/status"
                 android:layout_toEndOf="@+id/status"
-                android:text="책상태입니다"
+                android:text=""
                 android:textSize="30dp" />
 
         </RelativeLayout>

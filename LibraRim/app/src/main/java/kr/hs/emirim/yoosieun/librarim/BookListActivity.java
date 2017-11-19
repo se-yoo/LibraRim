@@ -1,23 +1,53 @@
 package kr.hs.emirim.yoosieun.librarim;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import static kr.hs.emirim.yoosieun.librarim.BookInfoActivity.calledAlready;
 
 /**
  * Created by Yoosieun on 2017-11-08.
  */
 
 
-public class BookListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String img;
+    private String booksgroup;
+    private String selectedbooktitle="";
+
+    String image;
+
+    ListView bookList;
+
+    Bitmap bitmap;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference databaseRef;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -25,7 +55,7 @@ public class BookListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         getWindow().setWindowAnimations(0); //전환효과 없애기
 
-        ListView bookList=(ListView)findViewById(R.id.book_listview);
+        bookList=(ListView)findViewById(R.id.book_listview);
 
         Intent intent=getIntent();
 
@@ -46,66 +76,83 @@ public class BookListActivity extends AppCompatActivity {
 
         switch (img){
             case "tof":
+                booksgroup="00";
                 groupImg.setImageResource(R.drawable.group_tof);
                 groupImg.invalidate();
                 break;
             case "art":
+                booksgroup="10";
                 groupImg.setImageResource(R.drawable.group_art);
                 groupImg.invalidate();
                 break;
             case "reli":
+                booksgroup="20";
                 groupImg.setImageResource(R.drawable.group_rel);
                 groupImg.invalidate();
                 break;
             case "sosci":
+                booksgroup="30";
                 groupImg.setImageResource(R.drawable.group_sosci);
                 groupImg.invalidate();
                 break;
             case "nas":
+                booksgroup="40";
                 groupImg.setImageResource(R.drawable.group_nasci);
                 groupImg.invalidate();
                 break;
             case "phil":
+                booksgroup="50";
                 groupImg.setImageResource(R.drawable.group_phil);
                 groupImg.invalidate();
                 break;
             case "dessci":
+                booksgroup="60";
                 groupImg.setImageResource(R.drawable.group_dessci);
                 groupImg.invalidate();
                 break;
             case "lang":
+                booksgroup="70";
                 groupImg.setImageResource(R.drawable.group_lang);
                 groupImg.invalidate();
                 break;
             case "lit":
+                booksgroup="80";
                 groupImg.setImageResource(R.drawable.group_lit);
                 groupImg.invalidate();
                 break;
             case "his":
+                booksgroup="90";
                 groupImg.setImageResource(R.drawable.group_his);
                 groupImg.invalidate();
                 break;
             case "hot":
+                booksgroup="bestbook";
                 groupImg.setImageResource(R.drawable.hotbook_2);
                 groupImg.invalidate();
                 break;
             case "new":
+                booksgroup="newbook";
                 groupImg.setImageResource(R.drawable.newbook);
                 groupImg.invalidate();
                 break;
             case "search":
+                //booksgroup="search";
                 search_String.setVisibility(View.VISIBLE);
                 groupImg.setVisibility(View.INVISIBLE);
                 search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
                 break;
         }
+        dataSetting();
     }
     public void SetBtClick(View v){
         Intent intent=new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
     public void getBookInfoPage(View v){
+        Toast.makeText(getApplicationContext(),selectedbooktitle,Toast.LENGTH_SHORT).show();
         Intent intent=new Intent(this, BookInfoActivity.class);
+        intent.putExtra("type",booksgroup);
+        intent.putExtra("bookName",selectedbooktitle);
         startActivityForResult(intent,3);
     }
     public void onMenuBtnClick(View v){
@@ -141,4 +188,137 @@ public class BookListActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    @Override
+    public void onClick(View view) {
+
+    }
+
+    private void dataSetting() {
+        final BooksAdapter mBAdapter = new BooksAdapter();
+        if(booksgroup=="newbook"){
+            databaseRef =  database.getReference("newbook");
+        }else if(booksgroup=="bestbook"){
+            databaseRef =  database.getReference("bestbook");
+        }else{
+            databaseRef =  database.getReference("bookInfo");
+        }
+
+        if(booksgroup=="newbook"||booksgroup=="bestbook"){
+            databaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                        // TODO: 2017-11-18 이미지 !!!
+                        image = fileSnapshot.child("img").getValue(String.class);
+                        Thread mThread = new Thread() {
+                            public void run() {
+                                try {
+                                    URL url = new URL(image);
+
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setDoInput(true);
+                                    conn.connect();
+
+                                    InputStream is = conn.getInputStream();
+                                    bitmap = BitmapFactory.decodeStream(is);
+
+                                } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        mThread.start();
+                        try {
+                            mThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        String title = fileSnapshot.child("title").getValue(String.class);
+                        String writ = fileSnapshot.child("witer").getValue(String.class);
+                        String pub = fileSnapshot.child("pub").getValue(String.class);
+                        String stat = fileSnapshot.child("status").getValue(String.class);
+                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                    }//for data끝까지
+                    mBAdapter.notifyDataSetChanged();
+                    bookList.setAdapter(mBAdapter);
+                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView parent, View view, int position, long id) {
+                            selectedbooktitle=mBAdapter.getItem(position).getTitle();
+                            getBookInfoPage(view);
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                }
+            });
+        }
+        else {
+            databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                        // TODO: 2017-11-18 이미지 !!!
+                        image = fileSnapshot.child("img").getValue(String.class);
+                        Thread mThread = new Thread() {
+                            public void run() {
+                                try {
+                                    URL url = new URL(image);
+
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setDoInput(true);
+                                    conn.connect();
+
+                                    InputStream is = conn.getInputStream();
+                                    bitmap = BitmapFactory.decodeStream(is);
+
+                                } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        mThread.start();
+                        try {
+                            mThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        String title = fileSnapshot.child("title").getValue(String.class);
+                        String writ;
+                        if (booksgroup == "00" || booksgroup == "40" || booksgroup == "80") {
+                            writ = fileSnapshot.child("witer").getValue(String.class);
+                        } else {
+                            writ = fileSnapshot.child("writer").getValue(String.class);
+                        }
+                        String pub = fileSnapshot.child("pub").getValue(String.class);
+                        String stat = fileSnapshot.child("status").getValue(String.class);
+                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                    }//for data끝까지
+                    mBAdapter.notifyDataSetChanged();
+                    bookList.setAdapter(mBAdapter);
+                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView parent, View view, int position, long id) {
+                            selectedbooktitle = mBAdapter.getItem(position).getTitle();
+                            getBookInfoPage(view);
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                }
+            });
+        }
+    }
+
 }
