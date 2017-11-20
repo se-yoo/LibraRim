@@ -1,13 +1,17 @@
 package kr.hs.emirim.yoosieun.librarim;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -26,16 +30,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-
-import static kr.hs.emirim.yoosieun.librarim.BookInfoActivity.calledAlready;
 
 /**
  * Created by Yoosieun on 2017-11-08.
  */
 
 
-public class BookListActivity extends AppCompatActivity implements View.OnClickListener{
+public class BookListActivity extends AppCompatActivity implements View.OnClickListener, AbsListView.OnScrollListener {
 
     private String img;
     private String booksgroup;
@@ -48,6 +49,13 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     Bitmap bitmap;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference databaseRef;
+    private boolean mLockListView;
+    private LayoutInflater mInflater;
+
+    final BooksAdapter mBAdapter = new BooksAdapter();
+
+    int bookcnt=10;
+    int bookc=0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,9 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
         TextView search_String=(TextView)findViewById(R.id.search_String);
         img=intent.getStringExtra("group");
         search_String.setVisibility(View.INVISIBLE);
+
+        mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        bookList.addFooterView(mInflater.inflate(R.layout.book_list_footer, null));
 
         final RelativeLayout backButton=(RelativeLayout)findViewById(R.id.backbutton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +153,14 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
                 break;
         }
+        if(booksgroup=="newbook"){
+            databaseRef =  database.getReference("newbook");
+        }else if(booksgroup=="bestbook"){
+            databaseRef =  database.getReference("bestbook");
+        }else{
+            databaseRef =  database.getReference("bookInfo");
+        }
+
         dataSetting();
     }
     public void SetBtClick(View v){
@@ -195,130 +214,151 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void dataSetting() {
-        final BooksAdapter mBAdapter = new BooksAdapter();
-        if(booksgroup=="newbook"){
-            databaseRef =  database.getReference("newbook");
-        }else if(booksgroup=="bestbook"){
-            databaseRef =  database.getReference("bestbook");
-        }else{
-            databaseRef =  database.getReference("bookInfo");
-        }
+        mLockListView = true;
+        bookc=0;
 
-        if(booksgroup=="newbook"||booksgroup=="bestbook"){
-            databaseRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                        // TODO: 2017-11-18 이미지 !!!
-                        image = fileSnapshot.child("img").getValue(String.class);
-                        Thread mThread = new Thread() {
-                            public void run() {
+        Runnable run = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(booksgroup=="newbook"||booksgroup=="bestbook"){
+                    databaseRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                                bookc+=1;
+                                image = fileSnapshot.child("img").getValue(String.class);
+                                Thread mThread = new Thread() {
+                                    public void run() {
+                                        try {
+                                            URL url = new URL(image);
+
+                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                            conn.setDoInput(true);
+                                            conn.connect();
+
+                                            InputStream is = conn.getInputStream();
+                                            bitmap = BitmapFactory.decodeStream(is);
+
+                                        } catch (MalformedURLException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                mThread.start();
                                 try {
-                                    URL url = new URL(image);
-
-                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                    conn.setDoInput(true);
-                                    conn.connect();
-
-                                    InputStream is = conn.getInputStream();
-                                    bitmap = BitmapFactory.decodeStream(is);
-
-                                } catch (MalformedURLException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
+                                    mThread.join();
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                            }
-                        };
-                        mThread.start();
-                        try {
-                            mThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                                String title = fileSnapshot.child("title").getValue(String.class);
+                                String writ = fileSnapshot.child("witer").getValue(String.class);
+                                String pub = fileSnapshot.child("pub").getValue(String.class);
+                                String stat = fileSnapshot.child("status").getValue(String.class);
+                                mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                            }//for data끝까지
+                            mBAdapter.notifyDataSetChanged();
+                            bookList.setAdapter(mBAdapter);
+                            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView parent, View view, int position, long id) {
+                                    selectedbooktitle=mBAdapter.getItem(position).getTitle();
+                                    getBookInfoPage(view);
+                                }
+                            });
                         }
-                        String title = fileSnapshot.child("title").getValue(String.class);
-                        String writ = fileSnapshot.child("witer").getValue(String.class);
-                        String pub = fileSnapshot.child("pub").getValue(String.class);
-                        String stat = fileSnapshot.child("status").getValue(String.class);
-                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                    }//for data끝까지
-                    mBAdapter.notifyDataSetChanged();
-                    bookList.setAdapter(mBAdapter);
-                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
                         @Override
-                        public void onItemClick(AdapterView parent, View view, int position, long id) {
-                            selectedbooktitle=mBAdapter.getItem(position).getTitle();
-                            getBookInfoPage(view);
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.w("TAG: ", "Failed to read value", databaseError.toException());
                         }
                     });
                 }
+                else {
+                    databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                                bookc+=1;
+                                image = fileSnapshot.child("img").getValue(String.class);
+                                Thread mThread = new Thread() {
+                                    public void run() {
+                                        try {
+                                            URL url = new URL(image);
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
-                }
-            });
-        }
-        else {
-            databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                        // TODO: 2017-11-18 이미지 !!!
-                        image = fileSnapshot.child("img").getValue(String.class);
-                        Thread mThread = new Thread() {
-                            public void run() {
+                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                            conn.setDoInput(true);
+                                            conn.connect();
+
+                                            InputStream is = conn.getInputStream();
+                                            bitmap = BitmapFactory.decodeStream(is);
+
+                                        } catch (MalformedURLException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                mThread.start();
                                 try {
-                                    URL url = new URL(image);
-
-                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                    conn.setDoInput(true);
-                                    conn.connect();
-
-                                    InputStream is = conn.getInputStream();
-                                    bitmap = BitmapFactory.decodeStream(is);
-
-                                } catch (MalformedURLException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
+                                    mThread.join();
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                            }
-                        };
-                        mThread.start();
-                        try {
-                            mThread.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                                String title = fileSnapshot.child("title").getValue(String.class);
+                                String writ;
+                                if (booksgroup == "00" || booksgroup == "40" || booksgroup == "80") {
+                                    writ = fileSnapshot.child("witer").getValue(String.class);
+                                } else {
+                                    writ = fileSnapshot.child("writer").getValue(String.class);
+                                }
+                                String pub = fileSnapshot.child("pub").getValue(String.class);
+                                String stat = fileSnapshot.child("status").getValue(String.class);
+                                mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                            }//for data끝까지
+                            mBAdapter.notifyDataSetChanged();
+                            bookList.setAdapter(mBAdapter);
+                            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView parent, View view, int position, long id) {
+                                    selectedbooktitle = mBAdapter.getItem(position).getTitle();
+                                    getBookInfoPage(view);
+                                }
+                            });
                         }
-                        String title = fileSnapshot.child("title").getValue(String.class);
-                        String writ;
-                        if (booksgroup == "00" || booksgroup == "40" || booksgroup == "80") {
-                            writ = fileSnapshot.child("witer").getValue(String.class);
-                        } else {
-                            writ = fileSnapshot.child("writer").getValue(String.class);
-                        }
-                        String pub = fileSnapshot.child("pub").getValue(String.class);
-                        String stat = fileSnapshot.child("status").getValue(String.class);
-                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                    }//for data끝까지
-                    mBAdapter.notifyDataSetChanged();
-                    bookList.setAdapter(mBAdapter);
-                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
                         @Override
-                        public void onItemClick(AdapterView parent, View view, int position, long id) {
-                            selectedbooktitle = mBAdapter.getItem(position).getTitle();
-                            getBookInfoPage(view);
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.w("TAG: ", "Failed to read value", databaseError.toException());
                         }
                     });
                 }
+                // 모든 데이터를 로드하여 적용하였다면 어댑터에 알리고
+                // 리스트뷰의 락을 해제합니다.
+                mBAdapter.notifyDataSetChanged();
+                mLockListView = false;
+            }
+        };
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
-                }
-            });
-        }
+        Handler handler = new Handler();
+        handler.postDelayed(run, 1000);
     }
 
+    @Override
+    public void onScrollStateChanged(AbsListView absListView, int i) {
+    }
+
+
+    @Override
+    public void onScroll(AbsListView absListView, int firstVisibleItem,int visibleItemCount, int totalItemCount) {
+        // 현재 가장 처음에 보이는 셀번호와 보여지는 셀번호를 더한값이
+        // 전체의 숫자와 동일해지면 가장 아래로 스크롤 되었다고 가정합니다.
+        if (firstVisibleItem >= totalItemCount-visibleItemCount && totalItemCount != 0 && mLockListView == false) {
+            dataSetting();
+        }
+    }
 }
