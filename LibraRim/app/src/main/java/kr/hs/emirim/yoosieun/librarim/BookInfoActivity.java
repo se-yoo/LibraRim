@@ -46,7 +46,7 @@ public class BookInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_info);
 
         if (!calledAlready) {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true); // 다른 인스턴스보다 먼저 실행되어야 한다.
+//            FirebaseDatabase.getInstance().setPersistenceEnabled(true); // 다른 인스턴스보다 먼저 실행되어야 한다.
             calledAlready = true;
         }
         getWindow().setWindowAnimations(0); //전환효과 없애기

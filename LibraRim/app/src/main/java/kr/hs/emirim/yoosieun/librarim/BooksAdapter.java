@@ -20,14 +20,28 @@ class BooksAdapter extends BaseAdapter {
     private ArrayList<BookItem> mBooks = new ArrayList<>();
     private int layout;
 
+    ArrayList<BookItem> mResults = new ArrayList<>();
+    String theWord;
+    public void SetWord( String aWord )
+    {
+        theWord = aWord;
+        mResults.clear();
+        for( BookItem iter : mBooks )
+        {
+            if( iter.getTitle().contains( theWord ) == true )
+            {
+                mResults.add( iter );
+            }
+        }
+    }
     @Override
     public int getCount() {
-        return mBooks.size();
+        return mResults.size();
     }
 
     @Override
     public BookItem getItem(int position) {
-        return mBooks.get(position);
+        return mResults.get(position);
     }
 
     @Override
@@ -42,7 +56,7 @@ class BooksAdapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.book_list_item, parent, false);
         }
-        BookItem bookItem = mBooks.get(position);
+        BookItem bookItem = mResults.get(position);
         ImageView bookprofile = (ImageView)convertView.findViewById(R.id.bookprofile);
         TextView list_booktitle = (TextView)convertView.findViewById(R.id.list_booktitle); //제목
         TextView list_bookwriter = (TextView)convertView.findViewById(R.id.list_bookwriter); //작가
@@ -65,5 +79,6 @@ class BooksAdapter extends BaseAdapter {
 
         /* mBooks에 MyItem을 추가한다. */
         mBooks.add(mBook);
+        mResults.add( mBook );
     }
 }

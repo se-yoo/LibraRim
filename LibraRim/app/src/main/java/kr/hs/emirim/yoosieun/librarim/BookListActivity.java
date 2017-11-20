@@ -54,15 +54,16 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
 
     final BooksAdapter mBAdapter = new BooksAdapter();
 
-    int bookcnt=10;
-    int bookc=0;
+    int bookcnt=0;
 
+    String theWord;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         getWindow().setWindowAnimations(0); //전환효과 없애기
 
+        theWord = null;
         bookList=(ListView)findViewById(R.id.book_listview);
 
         Intent intent=getIntent();
@@ -71,9 +72,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
         TextView search_String=(TextView)findViewById(R.id.search_String);
         img=intent.getStringExtra("group");
         search_String.setVisibility(View.INVISIBLE);
-
-        mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        bookList.addFooterView(mInflater.inflate(R.layout.book_list_footer, null));
 
         final RelativeLayout backButton=(RelativeLayout)findViewById(R.id.backbutton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -147,9 +145,11 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 groupImg.invalidate();
                 break;
             case "search":
-                //booksgroup="search";
+                booksgroup="newbook";
                 search_String.setVisibility(View.VISIBLE);
                 groupImg.setVisibility(View.INVISIBLE);
+
+                theWord = intent.getStringExtra("searchStr");
                 search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
                 break;
         }
@@ -215,7 +215,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
 
     private void dataSetting() {
         mLockListView = true;
-        bookc=0;
 
         Runnable run = new Runnable()
         {
@@ -227,7 +226,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                                bookc+=1;
+                                bookcnt+=1;
                                 image = fileSnapshot.child("img").getValue(String.class);
                                 Thread mThread = new Thread() {
                                     public void run() {
@@ -259,7 +258,13 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 String pub = fileSnapshot.child("pub").getValue(String.class);
                                 String stat = fileSnapshot.child("status").getValue(String.class);
                                 mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                                if(bookcnt==60)
+                                    break;
                             }//for data끝까지
+                            if( theWord != null )
+                            {
+                                mBAdapter.SetWord( theWord );
+                            }
                             mBAdapter.notifyDataSetChanged();
                             bookList.setAdapter(mBAdapter);
                             bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -282,7 +287,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                                bookc+=1;
+                                bookcnt+=1;
                                 image = fileSnapshot.child("img").getValue(String.class);
                                 Thread mThread = new Thread() {
                                     public void run() {
@@ -319,7 +324,14 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 String pub = fileSnapshot.child("pub").getValue(String.class);
                                 String stat = fileSnapshot.child("status").getValue(String.class);
                                 mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                                if(bookcnt==60)
+                                    break;
                             }//for data끝까지
+                            if( theWord != null )
+                            {
+                                mBAdapter.SetWord( theWord );
+                            }
+
                             mBAdapter.notifyDataSetChanged();
                             bookList.setAdapter(mBAdapter);
                             bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
