@@ -242,7 +242,7 @@ public class Homefragment extends Fragment{
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), BookInfoActivity.class);
                 intent.putExtra("bookName", nBookName[3]);
-                intent.putExtra("type", "100");
+                intent.putExtra("type", "newbook");
                 startActivity(intent);
             }
         });

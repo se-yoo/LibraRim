@@ -5,9 +5,9 @@
     <PreferenceScreen
         android:title="서비스 정보"
         android:key="service_info">
-        <Preference
-            android:layout="@layout/fragment_serviceinfo">
-        </Preference>
+        <intent
+            android:action="android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS">
+        </intent>
     </PreferenceScreen>
 
 </PreferenceScreen>
