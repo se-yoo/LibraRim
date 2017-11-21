@@ -16,9 +16,7 @@ import java.util.ArrayList;
  */
 
 class BooksAdapter extends BaseAdapter {
-    private LayoutInflater inflater;
     private ArrayList<BookItem> mBooks = new ArrayList<>();
-    private int layout;
 
     ArrayList<BookItem> mResults = new ArrayList<>();
     String theWord;
@@ -76,6 +74,22 @@ class BooksAdapter extends BaseAdapter {
         mBook.setWriter(writer);
         mBook.setPub(pub);
         mBook.setStatus(status);
+
+        /* mBooks에 MyItem을 추가한다. */
+        mBooks.add(mBook);
+        mResults.add( mBook );
+    }
+
+    public void addItem2(Bitmap bitmap, String title, String writer, String pub, String status,String group) {
+        BookItem mBook = new BookItem();
+
+        /* MyItem에 아이템을 setting한다. */
+        mBook.setBookImg(bitmap);
+        mBook.setTitle(title);
+        mBook.setWriter(writer);
+        mBook.setPub(pub);
+        mBook.setStatus(status);
+        mBook.setGroup(group);
 
         /* mBooks에 MyItem을 추가한다. */
         mBooks.add(mBook);

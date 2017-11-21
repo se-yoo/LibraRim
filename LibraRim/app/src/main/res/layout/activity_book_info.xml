@@ -99,8 +99,7 @@
                 android:layout_height="450dp"
                 android:layout_marginLeft="50dp"
                 android:layout_marginTop="20dp"
-                android:background="@android:color/transparent"
-                android:src="@mipmap/ic_launcher" />
+                android:background="@android:color/transparent" />
 
             <TextView
                 android:id="@+id/booktitle"

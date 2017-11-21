@@ -12,6 +12,7 @@ class BookItem {
     private String writer;
     private String pub;
     private String status;
+    private String searchgroup;
 
     public Bitmap getBookImg() {
         return bitmap;
@@ -49,6 +50,15 @@ class BookItem {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // 검색하면 다 그룹이 다르기 때문에 분류 겟셋
+    public String getGroup() {
+        return searchgroup;
+    }
+
+    public void setGroup(String searchgroup) {
+        this.searchgroup = searchgroup;
     }
 
 }

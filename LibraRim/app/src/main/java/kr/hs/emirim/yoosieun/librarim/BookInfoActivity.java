@@ -54,10 +54,10 @@ public class BookInfoActivity extends AppCompatActivity {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("newbook");
 
         Intent intent = getIntent();
-        //final String book = intent.getStringExtra("bookName");
-        //String type = intent.getStringExtra("type");
-        final String book = "새는 왜 날개를 가지고 있을까?.48";
-        String type = "40";
+        final String book = intent.getStringExtra("bookName");
+        String type = intent.getStringExtra("type");
+        //final String book = "수리 논술구술의 신";
+        //String type = "80";
         final TextView titleOfBook = (TextView)findViewById(R.id.titleOfBook);
         final TextView writerOfBook = (TextView)findViewById(R.id.writerOfBook);
         final TextView publisherOfBook = (TextView)findViewById(R.id.publisherOfBook);
@@ -80,7 +80,6 @@ public class BookInfoActivity extends AppCompatActivity {
             for(int i =0; i<10; i++)
             {
                 type = ""+i+"0";
-                // Toast.makeText(getApplicationContext(), type, Toast.LENGTH_SHORT).show();
                 mDatabase =FirebaseDatabase.getInstance().getReference("bookInfo/"+type);
                 final String finalType = type;
                 final DatabaseReference finalMDatabase = mDatabase;
@@ -88,7 +87,6 @@ public class BookInfoActivity extends AppCompatActivity {
                     finalMDatabase.orderByChild("title").equalTo(book).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            //Toast.makeText(getApplicationContext(), "여기들어옴시", Toast.LENGTH_SHORT).show();
 
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 String img = snapshot.child("img").getValue(String.class);
@@ -98,7 +96,6 @@ public class BookInfoActivity extends AppCompatActivity {
                                 String title = snapshot.child("title").getValue(String.class);
                                 String group = snapshot.child("group").getValue(String.class);
                                 String wrtier;
-                                Toast.makeText(getApplicationContext(), img, Toast.LENGTH_SHORT).show();
 
                                 if(finalType.equals("00") || finalType.equals("40")||finalType.equals("80"))
                                 {
@@ -108,7 +105,6 @@ public class BookInfoActivity extends AppCompatActivity {
                                 {
                                     wrtier = snapshot.child("writer").getValue(String.class);
                                 }
-                                //Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                                 titleOfBook.setText(title);
                                 writerOfBook.setText(wrtier);
                                 publisherOfBook.setText(pub);
@@ -138,10 +134,8 @@ public class BookInfoActivity extends AppCompatActivity {
         }
         else if(type.equals("bestbook") || type.equals("newbook"))
         {
-            Toast.makeText(getApplicationContext(), "여기들어옴~", Toast.LENGTH_SHORT).show();
             final String finalType = type;
             mDatabase =FirebaseDatabase.getInstance().getReference(type);
-            Toast.makeText(getApplicationContext(), book, Toast.LENGTH_SHORT).show();
             mDatabase.orderByChild("title").equalTo(book).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -161,7 +155,6 @@ public class BookInfoActivity extends AppCompatActivity {
                             group = "신간도서";
                         }
                         String wrtier;
-                        Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
 
                         wrtier = snapshot.child("witer").getValue(String.class);
 
@@ -192,10 +185,8 @@ public class BookInfoActivity extends AppCompatActivity {
             });
         }
         else {
-            Toast.makeText(getApplicationContext(), "여기들어옴~", Toast.LENGTH_SHORT).show();
             final String finalType = type;
             mDatabase =FirebaseDatabase.getInstance().getReference("bookInfo/"+type);
-            Toast.makeText(getApplicationContext(), book, Toast.LENGTH_SHORT).show();
             mDatabase.orderByChild("title").equalTo(book).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -207,8 +198,6 @@ public class BookInfoActivity extends AppCompatActivity {
                         String title = snapshot.child("title").getValue(String.class);
                         String group = snapshot.child("group").getValue(String.class);
                         String wrtier;
-                        Toast.makeText(getApplicationContext(), group, Toast.LENGTH_SHORT).show();
-                        Toast.makeText(getApplicationContext(), words[(Integer.parseInt(group)/10)], Toast.LENGTH_SHORT).show();
 
                         if(finalType.equals("00") || finalType.equals("40")||finalType.equals("80"))
                         {
@@ -251,7 +240,6 @@ public class BookInfoActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String str = snapshot.child("pub").getValue(String.class);
-                    Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                 }
             }
 

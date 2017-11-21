@@ -15,6 +15,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ import java.net.URL;
  */
 
 
-public class BookListActivity extends AppCompatActivity implements View.OnClickListener, AbsListView.OnScrollListener {
+public class BookListActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String img;
     private String booksgroup;
@@ -49,9 +50,8 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     Bitmap bitmap;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference databaseRef;
-    private boolean mLockListView;
-    private LayoutInflater mInflater;
-
+    private ProgressBar progressBar;
+    private TextView nothing;
     final BooksAdapter mBAdapter = new BooksAdapter();
 
     int bookcnt=0;
@@ -65,12 +65,16 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
 
         theWord = null;
         bookList=(ListView)findViewById(R.id.book_listview);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Intent intent=getIntent();
 
         ImageView groupImg=(ImageView)findViewById(R.id.classification_img);
+        ImageView bar=(ImageView)findViewById(R.id.bar);
         TextView search_String=(TextView)findViewById(R.id.search_String);
+        nothing=(TextView)findViewById(R.id.nothing);
         img=intent.getStringExtra("group");
+        nothing.setVisibility(View.INVISIBLE);
         search_String.setVisibility(View.INVISIBLE);
 
         final RelativeLayout backButton=(RelativeLayout)findViewById(R.id.backbutton);
@@ -145,9 +149,11 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 groupImg.invalidate();
                 break;
             case "search":
-                booksgroup="newbook";
+                booksgroup="100";
                 search_String.setVisibility(View.VISIBLE);
                 groupImg.setVisibility(View.INVISIBLE);
+                bar.setImageResource(R.drawable.search_bar_);
+                bar.invalidate();
 
                 theWord = intent.getStringExtra("searchStr");
                 search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
@@ -168,7 +174,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
         startActivity(intent);
     }
     public void getBookInfoPage(View v){
-        Toast.makeText(getApplicationContext(),selectedbooktitle,Toast.LENGTH_SHORT).show();
         Intent intent=new Intent(this, BookInfoActivity.class);
         intent.putExtra("type",booksgroup);
         intent.putExtra("bookName",selectedbooktitle);
@@ -202,9 +207,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
             intent2.putExtra("move",data.getStringExtra("move"));
             setResult(1,intent2);
             finish();
-        }else {
-            setResult(0,intent2);
-            finish();
         }
     }
 
@@ -214,14 +216,13 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void dataSetting() {
-        mLockListView = true;
 
         Runnable run = new Runnable()
         {
             @Override
             public void run()
             {
-                if(booksgroup=="newbook"||booksgroup=="bestbook"){
+                if(booksgroup.equals("newbook")||booksgroup.equals("bestbook")){
                     databaseRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -282,6 +283,56 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                         }
                     });
                 }
+                else if(booksgroup =="100")
+                {
+                    for(int i=0;i<10;i++) {
+                        booksgroup = ""+i+"0";
+                        databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                                    String title = fileSnapshot.child("title").getValue(String.class);
+                                    String group = fileSnapshot.child("group").getValue(String.class);
+                                    String writ;
+                                    if (group.equals("00")|| group.equals("40") || group.equals("80")) {
+                                        writ = fileSnapshot.child("witer").getValue(String.class);
+                                    } else{
+                                        writ = fileSnapshot.child("writer").getValue(String.class);
+                                    }
+                                    String pub = fileSnapshot.child("pub").getValue(String.class);
+                                    String stat = fileSnapshot.child("status").getValue(String.class);
+                                    mBAdapter.addItem2(bitmap, title, writ, pub, stat,group);
+                                }//for data끝까지
+
+                                if( theWord != null )
+                                {
+                                    mBAdapter.SetWord( theWord );
+                                }
+                                mBAdapter.notifyDataSetChanged();
+                                bookList.setAdapter(mBAdapter);
+                                bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView parent, View view, int position, long id) {
+                                        selectedbooktitle = mBAdapter.getItem(position).getTitle();
+                                        booksgroup=mBAdapter.getItem(position).getGroup();
+                                        getBookInfoPage(view);
+                                    }
+                                });
+
+                                if(booksgroup.equals("90")&&mBAdapter.getCount()==0){
+                                    progressBar.setVisibility(View.GONE);
+                                    nothing.setVisibility(View.VISIBLE);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                            }
+                        });
+                    }
+                }
+
                 else {
                     databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
                         @Override
@@ -316,7 +367,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 }
                                 String title = fileSnapshot.child("title").getValue(String.class);
                                 String writ;
-                                if (booksgroup == "00" || booksgroup == "40" || booksgroup == "80") {
+                                if (booksgroup.equals("00") || booksgroup.equals("40") || booksgroup.equals("80")) {
                                     writ = fileSnapshot.child("witer").getValue(String.class);
                                 } else {
                                     writ = fileSnapshot.child("writer").getValue(String.class);
@@ -324,14 +375,9 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 String pub = fileSnapshot.child("pub").getValue(String.class);
                                 String stat = fileSnapshot.child("status").getValue(String.class);
                                 mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                                if(bookcnt==60)
+                                if (bookcnt == 60)
                                     break;
                             }//for data끝까지
-                            if( theWord != null )
-                            {
-                                mBAdapter.SetWord( theWord );
-                            }
-
                             mBAdapter.notifyDataSetChanged();
                             bookList.setAdapter(mBAdapter);
                             bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -352,25 +398,10 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 // 모든 데이터를 로드하여 적용하였다면 어댑터에 알리고
                 // 리스트뷰의 락을 해제합니다.
                 mBAdapter.notifyDataSetChanged();
-                mLockListView = false;
             }
         };
 
         Handler handler = new Handler();
         handler.postDelayed(run, 1000);
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView absListView, int i) {
-    }
-
-
-    @Override
-    public void onScroll(AbsListView absListView, int firstVisibleItem,int visibleItemCount, int totalItemCount) {
-        // 현재 가장 처음에 보이는 셀번호와 보여지는 셀번호를 더한값이
-        // 전체의 숫자와 동일해지면 가장 아래로 스크롤 되었다고 가정합니다.
-        if (firstVisibleItem >= totalItemCount-visibleItemCount && totalItemCount != 0 && mLockListView == false) {
-            dataSetting();
-        }
     }
 }
