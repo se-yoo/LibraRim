@@ -91,7 +91,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 groupImg.invalidate();
                 break;
             case "art":
-                booksgroup="10";
+                booksgroup="60";
                 groupImg.setImageResource(R.drawable.group_art);
                 groupImg.invalidate();
                 break;
@@ -111,12 +111,12 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 groupImg.invalidate();
                 break;
             case "phil":
-                booksgroup="50";
+                booksgroup="10";
                 groupImg.setImageResource(R.drawable.group_phil);
                 groupImg.invalidate();
                 break;
             case "dessci":
-                booksgroup="60";
+                booksgroup="50";
                 groupImg.setImageResource(R.drawable.group_dessci);
                 groupImg.invalidate();
                 break;
