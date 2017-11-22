@@ -145,6 +145,8 @@ public class Homefragment extends Fragment{
                                     e.printStackTrace();
                                 } catch (IOException e) {
                                     e.printStackTrace();
+                                }catch (OutOfMemoryError e){
+                                    Log.e("에러","뭔지몰그겠당");
                                 }
                             }
                         };//thread for image!!!!!! 😭

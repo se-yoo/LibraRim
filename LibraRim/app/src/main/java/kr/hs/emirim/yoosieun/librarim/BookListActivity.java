@@ -1,6 +1,5 @@
 package kr.hs.emirim.yoosieun.librarim;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,9 +8,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -156,7 +153,8 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                 bar.invalidate();
 
                 theWord = intent.getStringExtra("searchStr");
-                search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
+                if(!theWord.equals(""))search_String.setText(intent.getStringExtra("searchStr")+" 의 검색결과 입니다");
+                else search_String.setText("전체 책 목록입니다");
                 break;
         }
         if(booksgroup=="newbook"){
@@ -216,7 +214,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void dataSetting() {
-
         Runnable run = new Runnable()
         {
             @Override
@@ -259,8 +256,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 String pub = fileSnapshot.child("pub").getValue(String.class);
                                 String stat = fileSnapshot.child("status").getValue(String.class);
                                 mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                                if(bookcnt==60)
-                                    break;
+                                if(bookcnt==60) break;
                             }//for data끝까지
                             if( theWord != null )
                             {
@@ -301,7 +297,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                     }
                                     String pub = fileSnapshot.child("pub").getValue(String.class);
                                     String stat = fileSnapshot.child("status").getValue(String.class);
-                                    mBAdapter.addItem2(bitmap, title, writ, pub, stat,group);
+                                    mBAdapter.addItem2(title, writ, pub, stat,group);
                                 }//for data끝까지
 
                                 if( theWord != null )

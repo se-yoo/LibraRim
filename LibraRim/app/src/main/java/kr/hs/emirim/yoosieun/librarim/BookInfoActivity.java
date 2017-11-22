@@ -32,9 +32,7 @@ import java.net.URL;
 
 public class BookInfoActivity extends AppCompatActivity {
 
-    static boolean calledAlready = false;
     ImageView imView;
-    String imgUrl = "http://dnllab.incheon.ac.kr/appimg/";
     Bitmap bmImg;
     back task;
 
@@ -45,10 +43,6 @@ public class BookInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_info);
 
-        if (!calledAlready) {
-//            FirebaseDatabase.getInstance().setPersistenceEnabled(true); // 다른 인스턴스보다 먼저 실행되어야 한다.
-            calledAlready = true;
-        }
         getWindow().setWindowAnimations(0); //전환효과 없애기
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("newbook");
@@ -56,8 +50,6 @@ public class BookInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String book = intent.getStringExtra("bookName");
         String type = intent.getStringExtra("type");
-        //final String book = "수리 논술구술의 신";
-        //String type = "80";
         final TextView titleOfBook = (TextView)findViewById(R.id.titleOfBook);
         final TextView writerOfBook = (TextView)findViewById(R.id.writerOfBook);
         final TextView publisherOfBook = (TextView)findViewById(R.id.publisherOfBook);
@@ -214,7 +206,6 @@ public class BookInfoActivity extends AppCompatActivity {
                         groupOfBook.setText(words[(Integer.parseInt(group)/10)]);
                         locationOfBook.setText(location);
                         statusOfBook.setText(status);
-                        ImageView imgView = (ImageView)findViewById(R.id.bookImg);
 
                         task = new back();
                         imView = (ImageView) findViewById(R.id.bookImg);

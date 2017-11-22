@@ -91,7 +91,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="5">
+            android:layout_weight="9">
 
             <ImageView
                 android:id="@+id/bookImg"
@@ -108,7 +108,7 @@
                 android:layout_alignTop="@+id/bookImg"
                 android:layout_marginLeft="50dp"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="80dp"
                 android:layout_toEndOf="@+id/bookImg"
                 android:layout_toRightOf="@+id/bookImg"
                 android:text="책 제목"
@@ -132,7 +132,7 @@
                 android:layout_alignLeft="@+id/booktitle"
                 android:layout_alignStart="@+id/booktitle"
                 android:layout_below="@+id/booktitle"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="200dp"
                 android:text="저자"
                 android:textSize="30dp" />
 
@@ -155,7 +155,7 @@
                 android:layout_alignLeft="@+id/writer"
                 android:layout_alignStart="@+id/writer"
                 android:layout_below="@+id/writer"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="200dp"
                 android:text="출판사"
                 android:textSize="30dp" />
 
@@ -171,19 +171,12 @@
                 android:text=""
                 android:textSize="30dp" />
 
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="4">
-
             <TextView
                 android:id="@+id/group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="50dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="530dp"
                 android:text="책 분류"
                 android:textSize="30dp" />
 

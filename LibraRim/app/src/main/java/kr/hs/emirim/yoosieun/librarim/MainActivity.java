@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
+    static boolean calledAlready = false;
     static String beforePage[]={"home","home"};
     RelativeLayout backButton;
     LinearLayout homeButton;
@@ -27,7 +28,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // 다른 인스턴스보다 먼저 실행되어야 한다.
+        if (!calledAlready) {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true); // 다른 인스턴스보다 먼저 실행되어야 한다.
+            calledAlready = true;
+        }
 
 
         getWindow().setWindowAnimations(0);

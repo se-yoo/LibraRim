@@ -60,6 +60,7 @@ class BooksAdapter extends BaseAdapter {
         TextView list_bookwriter = (TextView)convertView.findViewById(R.id.list_bookwriter); //작가
         TextView list_bookstatus = (TextView)convertView.findViewById(R.id.list_bookstatus); //대출여부
         bookprofile.setImageBitmap(bookItem.getBookImg());
+        if(bookItem.getBookImg()==null)bookprofile.setVisibility(View.GONE);
         list_booktitle.setText(bookItem.getTitle());
         list_bookwriter.setText(bookItem.getWriter()+"/"+bookItem.getPub());
         list_bookstatus.setText(bookItem.getStatus());
@@ -80,11 +81,10 @@ class BooksAdapter extends BaseAdapter {
         mResults.add( mBook );
     }
 
-    public void addItem2(Bitmap bitmap, String title, String writer, String pub, String status,String group) {
+    public void addItem2(String title, String writer, String pub, String status,String group) {
         BookItem mBook = new BookItem();
 
         /* MyItem에 아이템을 setting한다. */
-        mBook.setBookImg(bitmap);
         mBook.setTitle(title);
         mBook.setWriter(writer);
         mBook.setPub(pub);

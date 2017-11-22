@@ -38,7 +38,7 @@
         <activity android:name=".ServiceInfoActivity">
             <intent-filter>
                 <action android:name="android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS"/>
-                <category android:name="android.intent.category.DEFAULT"> </category>
+                <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
     </application>
