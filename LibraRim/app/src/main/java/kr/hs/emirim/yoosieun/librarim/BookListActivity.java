@@ -49,7 +49,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     DatabaseReference databaseRef;
     private ProgressBar progressBar;
     private TextView nothing;
-    final BooksAdapter mBAdapter = new BooksAdapter();
+    static BooksAdapter mBAdapter = new BooksAdapter();
 
     int bookcnt=0;
 
@@ -78,6 +78,7 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBAdapter=null;
                 Intent intent=new Intent();
                 setResult(0,intent);
                 finish();
@@ -214,190 +215,186 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void dataSetting() {
-        Runnable run = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if(booksgroup.equals("newbook")||booksgroup.equals("bestbook")){
-                    databaseRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                                bookcnt+=1;
-                                image = fileSnapshot.child("img").getValue(String.class);
-                                Thread mThread = new Thread() {
-                                    public void run() {
-                                        try {
-                                            URL url = new URL(image);
+        mBAdapter = new BooksAdapter();
 
-                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                            conn.setDoInput(true);
-                                            conn.connect();
-
-                                            InputStream is = conn.getInputStream();
-                                            bitmap = BitmapFactory.decodeStream(is);
-
-                                        } catch (MalformedURLException e) {
-                                            e.printStackTrace();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                };
-                                mThread.start();
+        if(booksgroup.equals("newbook")||booksgroup.equals("bestbook")){
+            databaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                        bookcnt+=1;
+                        image = fileSnapshot.child("img").getValue(String.class);
+                        Thread mThread = new Thread() {
+                            public void run() {
                                 try {
-                                    mThread.join();
-                                } catch (InterruptedException e) {
+                                    URL url = new URL(image);
+
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setDoInput(true);
+                                    conn.connect();
+
+                                    InputStream is = conn.getInputStream();
+                                    bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(is), 96, 135, true);
+
+                                } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (OutOfMemoryError e){
                                     e.printStackTrace();
                                 }
-                                String title = fileSnapshot.child("title").getValue(String.class);
-                                String writ = fileSnapshot.child("witer").getValue(String.class);
-                                String pub = fileSnapshot.child("pub").getValue(String.class);
-                                String stat = fileSnapshot.child("status").getValue(String.class);
-                                mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                                if(bookcnt==60) break;
-                            }//for data끝까지
-                            if( theWord != null )
-                            {
-                                mBAdapter.SetWord( theWord );
                             }
-                            mBAdapter.notifyDataSetChanged();
-                            bookList.setAdapter(mBAdapter);
-                            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView parent, View view, int position, long id) {
-                                    selectedbooktitle=mBAdapter.getItem(position).getTitle();
-                                    getBookInfoPage(view);
-                                }
-                            });
+                        };
+                        mThread.start();
+                        try {
+                            mThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-
+                        String title = fileSnapshot.child("title").getValue(String.class);
+                        String writ = fileSnapshot.child("witer").getValue(String.class);
+                        String pub = fileSnapshot.child("pub").getValue(String.class);
+                        String stat = fileSnapshot.child("status").getValue(String.class);
+                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                        if(bookcnt==60) break;
+                    }//for data끝까지
+                    if( theWord != null )
+                    {
+                        mBAdapter.SetWord( theWord );
+                    }
+                    mBAdapter.notifyDataSetChanged();
+                    bookList.setAdapter(mBAdapter);
+                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                        public void onItemClick(AdapterView parent, View view, int position, long id) {
+                            selectedbooktitle=mBAdapter.getItem(position).getTitle();
+                            getBookInfoPage(view);
                         }
                     });
                 }
-                else if(booksgroup =="100")
-                {
-                    for(int i=0;i<10;i++) {
-                        booksgroup = ""+i+"0";
-                        databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                                    String title = fileSnapshot.child("title").getValue(String.class);
-                                    String group = fileSnapshot.child("group").getValue(String.class);
-                                    String writ;
-                                    if (group.equals("00")|| group.equals("40") || group.equals("80")) {
-                                        writ = fileSnapshot.child("witer").getValue(String.class);
-                                    } else{
-                                        writ = fileSnapshot.child("writer").getValue(String.class);
-                                    }
-                                    String pub = fileSnapshot.child("pub").getValue(String.class);
-                                    String stat = fileSnapshot.child("status").getValue(String.class);
-                                    mBAdapter.addItem2(title, writ, pub, stat,group);
-                                }//for data끝까지
 
-                                if( theWord != null )
-                                {
-                                    mBAdapter.SetWord( theWord );
-                                }
-                                mBAdapter.notifyDataSetChanged();
-                                bookList.setAdapter(mBAdapter);
-                                bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView parent, View view, int position, long id) {
-                                        selectedbooktitle = mBAdapter.getItem(position).getTitle();
-                                        booksgroup=mBAdapter.getItem(position).getGroup();
-                                        getBookInfoPage(view);
-                                    }
-                                });
-
-                                if(booksgroup.equals("90")&&mBAdapter.getCount()==0){
-                                    progressBar.setVisibility(View.GONE);
-                                    nothing.setVisibility(View.VISIBLE);
-                                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                }
+            });
+        }
+        else if(booksgroup =="100")
+        {
+            for(int i=0;i<10;i++) {
+                booksgroup = ""+i+"0";
+                databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                            String title = fileSnapshot.child("title").getValue(String.class);
+                            String group = fileSnapshot.child("group").getValue(String.class);
+                            String writ;
+                            if (group.equals("00")|| group.equals("40") || group.equals("80")) {
+                                writ = fileSnapshot.child("witer").getValue(String.class);
+                            } else{
+                                writ = fileSnapshot.child("writer").getValue(String.class);
                             }
+                            String pub = fileSnapshot.child("pub").getValue(String.class);
+                            String stat = fileSnapshot.child("status").getValue(String.class);
+                            mBAdapter.addItem2(title, writ, pub, stat,group);
+                        }//for data끝까지
 
+                        if( theWord != null )
+                        {
+                            mBAdapter.SetWord( theWord );
+                        }
+                        mBAdapter.notifyDataSetChanged();
+                        bookList.setAdapter(mBAdapter);
+                        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                                selectedbooktitle = mBAdapter.getItem(position).getTitle();
+                                booksgroup=mBAdapter.getItem(position).getGroup();
+                                getBookInfoPage(view);
                             }
                         });
+
+                        if(booksgroup.equals("90")&&mBAdapter.getCount()==0){
+                            progressBar.setVisibility(View.GONE);
+                            nothing.setVisibility(View.VISIBLE);
+                        }
                     }
-                }
 
-                else {
-                    databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
-                                bookcnt+=1;
-                                image = fileSnapshot.child("img").getValue(String.class);
-                                Thread mThread = new Thread() {
-                                    public void run() {
-                                        try {
-                                            URL url = new URL(image);
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                    }
+                });
+            }
+        }
 
-                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                            conn.setDoInput(true);
-                                            conn.connect();
-
-                                            InputStream is = conn.getInputStream();
-                                            bitmap = BitmapFactory.decodeStream(is);
-
-                                        } catch (MalformedURLException e) {
-                                            e.printStackTrace();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                };
-                                mThread.start();
+        else {
+            databaseRef.child(booksgroup).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot fileSnapshot : dataSnapshot.getChildren()) {
+                        bookcnt+=1;
+                        image = fileSnapshot.child("img").getValue(String.class);
+                        Thread mThread = new Thread() {
+                            public void run() {
                                 try {
-                                    mThread.join();
-                                } catch (InterruptedException e) {
+                                    URL url = new URL(image);
+
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setDoInput(true);
+                                    conn.connect();
+
+                                    InputStream is = conn.getInputStream();
+                                    bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(is), 96, 135, true);
+
+                                } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (OutOfMemoryError e){
                                     e.printStackTrace();
                                 }
-                                String title = fileSnapshot.child("title").getValue(String.class);
-                                String writ;
-                                if (booksgroup.equals("00") || booksgroup.equals("40") || booksgroup.equals("80")) {
-                                    writ = fileSnapshot.child("witer").getValue(String.class);
-                                } else {
-                                    writ = fileSnapshot.child("writer").getValue(String.class);
-                                }
-                                String pub = fileSnapshot.child("pub").getValue(String.class);
-                                String stat = fileSnapshot.child("status").getValue(String.class);
-                                mBAdapter.addItem(bitmap, title, writ, pub, stat);
-                                if (bookcnt == 60)
-                                    break;
-                            }//for data끝까지
-                            mBAdapter.notifyDataSetChanged();
-                            bookList.setAdapter(mBAdapter);
-                            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView parent, View view, int position, long id) {
-                                    selectedbooktitle = mBAdapter.getItem(position).getTitle();
-                                    getBookInfoPage(view);
-                                }
-                            });
+                            }
+                        };
+                        mThread.start();
+                        try {
+                            mThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-
+                        String title = fileSnapshot.child("title").getValue(String.class);
+                        String writ;
+                        if (booksgroup.equals("00") || booksgroup.equals("40") || booksgroup.equals("80")) {
+                            writ = fileSnapshot.child("witer").getValue(String.class);
+                        } else {
+                            writ = fileSnapshot.child("writer").getValue(String.class);
+                        }
+                        String pub = fileSnapshot.child("pub").getValue(String.class);
+                        String stat = fileSnapshot.child("status").getValue(String.class);
+                        mBAdapter.addItem(bitmap, title, writ, pub, stat);
+                        if (bookcnt == 60)
+                            break;
+                    }//for data끝까지
+                    mBAdapter.notifyDataSetChanged();
+                    bookList.setAdapter(mBAdapter);
+                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                        public void onItemClick(AdapterView parent, View view, int position, long id) {
+                            selectedbooktitle = mBAdapter.getItem(position).getTitle();
+                            getBookInfoPage(view);
                         }
                     });
                 }
-                // 모든 데이터를 로드하여 적용하였다면 어댑터에 알리고
-                // 리스트뷰의 락을 해제합니다.
-                mBAdapter.notifyDataSetChanged();
-            }
-        };
 
-        Handler handler = new Handler();
-        handler.postDelayed(run, 1000);
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w("TAG: ", "Failed to read value", databaseError.toException());
+                }
+            });
+        }
+        // 모든 데이터를 로드하여 적용하였다면 어댑터에 알리고
+        // 리스트뷰의 락을 해제합니다.
+        mBAdapter.notifyDataSetChanged();
     }
 }
