@@ -116,11 +116,11 @@
             <TextView
                 android:id="@+id/nothing"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_height="140dp"
+                android:gravity="center"
                 android:layout_centerHorizontal="true"
-                android:text="검색결과가 없습니다"
-                android:textSize="30dp"/>
+                android:text="검색결과가 없거나 와이파이가 신호가 취약합니다"
+                android:textSize="20dp"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

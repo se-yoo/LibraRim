@@ -3,6 +3,8 @@ package kr.hs.emirim.yoosieun.librarim;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -240,8 +242,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                     e.printStackTrace();
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                } catch (OutOfMemoryError e){
-                                    e.printStackTrace();
                                 }
                             }
                         };
@@ -258,10 +258,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                         mBAdapter.addItem(bitmap, title, writ, pub, stat);
                         if(bookcnt==60) break;
                     }//for data끝까지
-                    if( theWord != null )
-                    {
-                        mBAdapter.SetWord( theWord );
-                    }
                     mBAdapter.notifyDataSetChanged();
                     bookList.setAdapter(mBAdapter);
                     bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -351,8 +347,6 @@ public class BookListActivity extends AppCompatActivity implements View.OnClickL
                                 } catch (MalformedURLException e) {
                                     e.printStackTrace();
                                 } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (OutOfMemoryError e){
                                     e.printStackTrace();
                                 }
                             }

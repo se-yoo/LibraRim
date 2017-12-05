@@ -4,6 +4,8 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -82,7 +84,7 @@ public class Homefragment extends Fragment{
                                     Bitmap bmImg = BitmapFactory.decodeStream(is);
 
                                     bestB[y] = bmImg;
-                                    Log.e("베비트맵스트림", bestB[y].toString());
+                                    //Log.e("베비트맵스트림", bestB[y].toString());
 
                                 } catch (MalformedURLException e) {
                                     e.printStackTrace();

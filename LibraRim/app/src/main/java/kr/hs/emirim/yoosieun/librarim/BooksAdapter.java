@@ -2,6 +2,8 @@ package kr.hs.emirim.yoosieun.librarim;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 
 class BooksAdapter extends BaseAdapter {
     private ArrayList<BookItem> mBooks = new ArrayList<>();
+    ImageView bookprofile;
 
     ArrayList<BookItem> mResults = new ArrayList<>();
     String theWord;
@@ -55,7 +58,7 @@ class BooksAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.book_list_item, parent, false);
         }
         BookItem bookItem = mResults.get(position);
-        ImageView bookprofile = (ImageView)convertView.findViewById(R.id.bookprofile);
+        bookprofile = (ImageView)convertView.findViewById(R.id.bookprofile);
         TextView list_booktitle = (TextView)convertView.findViewById(R.id.list_booktitle); //제목
         TextView list_bookwriter = (TextView)convertView.findViewById(R.id.list_bookwriter); //작가
         TextView list_bookstatus = (TextView)convertView.findViewById(R.id.list_bookstatus); //대출여부
